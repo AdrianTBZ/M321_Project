@@ -13,23 +13,18 @@ services:
   # ── Terminal 2: Backend (Resource Server) ────────────────────
   backend:
     build: ./backend
-    ports:
-      - "3000:3000"
+    expose:
+      - "8081"
     depends_on:
       - iam
     environment:
       ISSUER: http://iam:8080/default
-      PYTHONUNBUFFERED: "1"
+      FRONTEND_ORIGIN: http://localhost:3000
 
-  # ── Terminal 3: Client (interactive curl walkthrough) ────────
-  client:
-    build: ./client
-    volumes:
-      - ./client/flow.sh:/app/flow.sh
+  # ── Terminal 3: Angular frontend ─────────────────────────────
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
     depends_on:
-      - iam
       - backend
-    stdin_open: true
-    tty: true
-    profiles:
-      - client   # only started on demand via: docker compose run --rm client

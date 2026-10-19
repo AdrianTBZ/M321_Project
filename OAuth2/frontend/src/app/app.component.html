@@ -1,0 +1,34 @@
+<main>
+  <section class="intro">
+    <div class="kicker">M321 / Distributed Systems</div>
+    <h1>Remote<br>Tic-Tac-Toe</h1>
+    <p class="lede">Ein verteiltes Spiel: Das Java-Backend verarbeitet REST-Commands und WebSockets verteilen den aktuellen Zustand.</p>
+    <div class="panel">
+      <label for="name">Spielername</label>
+      <input id="name" [(ngModel)]="playerName" maxlength="24" placeholder="z. B. Ada" autocomplete="off">
+      <button (click)="join()">Spiel beitreten</button>
+      <div class="status">{{ gameService.status() }}</div>
+    </div>
+  </section>
+
+  @if (game; as currentGame) {
+    <section class="game-wrap">
+      <div class="game-head"><h2>Match 001</h2><div class="meta">Version {{ currentGame.version }}<br>{{ gameStatus(currentGame) }}</div></div>
+      <div class="players">
+        <div class="player"><span>Spieler X</span><strong>{{ currentGame.players['X'] || 'Noch offen' }}</strong></div>
+        <div class="player player-o"><span>Spieler O</span><strong>{{ currentGame.players['O'] || 'Noch offen' }}</strong></div>
+      </div>
+      <div class="board">
+        @for (value of currentGame.board; track $index) {
+          <button class="cell" [class.cell-o]="value === 'O'" [disabled]="cellDisabled(value)" (click)="move($index)">{{ value }}</button>
+        }
+      </div>
+      <button class="reset" (click)="reset()">Spiel zurücksetzen</button>
+      @if (currentGame.status === 'finished') {
+        <div class="winning-screen">
+          <div class="winning-content"><h2>{{ winnerName(currentGame) }}</h2><p>Die Runde ist beendet.</p><button (click)="reset()">Neue Runde</button></div>
+        </div>
+      }
+    </section>
+  }
+</main>
