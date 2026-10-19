@@ -1,0 +1,35 @@
+services:
+  # ── Terminal 1: IAM (Identity Provider) ──────────────────────
+  iam:
+    image: ghcr.io/navikt/mock-oauth2-server:latest
+    ports:
+      - "8080:8080"
+    # No config needed! The server:
+    # - Creates issuers dynamically (default issuer at /default)
+    # - Shows an interactive login form
+    # - Issues real signed JWTs verifiable via JWKS
+    # - Publishes OIDC discovery at /default/.well-known/openid-configuration
+
+  # ── Terminal 2: Backend (Resource Server) ────────────────────
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - iam
+    environment:
+      ISSUER: http://iam:8080/default
+      PYTHONUNBUFFERED: "1"
+
+  # ── Terminal 3: Client (interactive curl walkthrough) ────────
+  client:
+    build: ./client
+    volumes:
+      - ./client/flow.sh:/app/flow.sh
+    depends_on:
+      - iam
+      - backend
+    stdin_open: true
+    tty: true
+    profiles:
+      - client   # only started on demand via: docker compose run --rm client
